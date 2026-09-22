@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
-  ArrowLeft,
+  AlertTriangle,
   Check,
   Copy,
   Download,
@@ -11,7 +11,6 @@ import {
   ImageIcon,
   Loader2,
   Lock,
-  MessageSquare,
   Orbit,
   RefreshCw,
   Sparkles,
@@ -21,7 +20,6 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { OperaLogoMark } from "@/components/brand/OperaLogoMark";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -72,6 +70,10 @@ type Result = {
   status: "loading" | "done" | "error";
   error?: string;
 };
+
+function isSafetyRefusal(message: string) {
+  return /safety|policy|moderation|content.?filter|refus|unsafe|blocked/i.test(message);
+}
 
 const STYLES: { name: StyleName; detail: string }[] = [
   { name: "Anime", detail: "polished anime illustration, expressive linework, vivid cel shading" },
@@ -247,7 +249,10 @@ function StudioPage() {
       await queryClient.invalidateQueries({ queryKey: ["generated-images", user.id] });
       toast.success(t("Image created and saved.", "تم إنشاء الصورة وحفظها."));
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const raw = error instanceof Error ? error.message : String(error);
+      const message = isSafetyRefusal(raw)
+        ? t("This request could not be created because it conflicts with image safety rules. Adjust the description and try again.", "تعذّر إنشاء هذه الصورة لأنها لا تتوافق مع قواعد أمان الصور. عدّل الوصف وحاول مرة أخرى.")
+        : raw;
       setResult((current) => ({
         prompt: current?.prompt ?? basePrompt,
         ...(current?.dataUrl ? { dataUrl: current.dataUrl } : {}),
@@ -300,27 +305,8 @@ function StudioPage() {
   };
 
   return (
-    <div dir={lang === "ar" ? "rtl" : "ltr"} className="relative min-h-screen overflow-hidden bg-background">
+    <div dir={lang === "ar" ? "rtl" : "ltr"} className="relative min-h-full overflow-hidden bg-background">
       <div className="fx-layer pointer-events-none fixed inset-0 bg-grid opacity-40" />
-      <header className="sticky top-0 z-30 border-b border-glass-border bg-background/75 px-4 py-3 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <Link to="/dashboard" aria-label={t("Back to account", "العودة إلى الحساب")} className="text-muted-foreground transition hover:text-foreground">
-              <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
-            </Link>
-            <OperaLogoMark className="h-10 w-10" />
-            <div className="min-w-0">
-              <p className="font-display text-sm font-bold">Opera AI</p>
-              <p className="truncate text-xs text-muted-foreground">{t("Creative Studio", "الاستوديو الإبداعي")}</p>
-            </div>
-          </div>
-          <nav className="flex items-center gap-1.5">
-            <Button asChild variant="ghost" size="sm"><Link to="/chat"><MessageSquare /> <span className="hidden sm:inline">{t("Chat", "المحادثة")}</span></Link></Button>
-            <Button asChild variant="secondary" size="sm"><Link to="/studio"><ImageIcon /> <span className="hidden sm:inline">{t("Studio", "الاستوديو")}</span></Link></Button>
-          </nav>
-        </div>
-      </header>
-
       <main className="relative mx-auto max-w-7xl px-4 py-8 sm:py-12">
         <section className="mb-8 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
@@ -436,7 +422,7 @@ function StudioPage() {
                 </div>
               )}
               {result?.status === "error" && (
-                <div className="absolute inset-x-4 bottom-4 rounded-xl border border-destructive/40 bg-background/90 p-3 text-sm text-destructive">{result.error}</div>
+                <div role="alert" className="absolute inset-x-4 bottom-4 flex items-start gap-3 rounded-lg border border-destructive/40 bg-background/95 p-4 text-sm text-destructive shadow-lg"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" /><span>{result.error}</span></div>
               )}
               {result?.status === "done" && result.dataUrl && (
                 <div className="absolute end-3 top-3 flex gap-2">
