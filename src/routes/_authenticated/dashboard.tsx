@@ -87,7 +87,7 @@ function Dashboard() {
   const verified = !!user?.email_confirmed_at;
 
   return (
-    <div dir={lang === "ar" ? "rtl" : "ltr"} className="min-h-screen px-4 py-10">
+    <div dir={lang === "ar" ? "rtl" : "ltr"} className="min-h-full px-4 py-10">
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-3">
@@ -103,7 +103,7 @@ function Dashboard() {
           </div>
         </header>
 
-        <div className="glass-strong mt-8 rounded-3xl p-8">
+        <div className="glass-strong mt-8 rounded-xl p-8">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex flex-col items-center gap-1.5">
               <button type="button" onClick={() => fileInputRef.current?.click()} className="relative">
@@ -173,33 +173,33 @@ function Dashboard() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="glass rounded-2xl p-6">
+          <div className="glass rounded-xl p-6">
             <Cpu className="h-5 w-5 text-primary" />
             <p className="mt-3 text-3xl font-bold">{profile?.tokens_used ?? 0}</p>
             <p className="text-sm text-muted-foreground">{t("AI tokens used", "الرصيد المستخدم للذكاء الاصطناعي")}</p>
           </div>
-          <Link to="/chat" className="glass rounded-2xl p-6 transition hover:border-primary/50">
+          <Link to="/chat" className="glass rounded-xl p-6 transition hover:border-primary/50">
             <Sparkles className="h-5 w-5 text-primary" />
             <p className="mt-3 font-semibold">{t("Chat workspace", "مساحة المحادثة")}</p>
             <p className="text-sm text-muted-foreground">
               {t("Talk to Opera AI with streaming answers and saved conversations.", "تحدّث مع أوبرا الذكي بردود فورية ومحادثات محفوظة.")}
             </p>
           </Link>
-          <Link to="/studio" className="glass rounded-2xl p-6 transition hover:border-primary/50">
+          <Link to="/studio" className="glass rounded-xl p-6 transition hover:border-primary/50">
             <ImageIcon className="h-5 w-5 text-primary" />
             <p className="mt-3 font-semibold">{t("Creative Studio", "الاستوديو الإبداعي")}</p>
             <p className="text-sm text-muted-foreground">
               {t("Generate original images and revisit your private archive.", "أنشئ صوراً أصلية واستعرض أرشيفك الخاص.")}
             </p>
           </Link>
-          <Link to="/code" className="glass rounded-2xl p-6 transition hover:border-primary/50">
+          <Link to="/code" className="glass rounded-xl p-6 transition hover:border-primary/50">
             <Code2 className="h-5 w-5 text-primary" />
             <p className="mt-3 font-semibold">{t("Code Workspace", "مساحة الأكواد")}</p>
             <p className="text-sm text-muted-foreground">
               {t("Cloud IDE with a live terminal and AI refactoring.", "بيئة برمجة سحابية بطرفية حيّة ومساعد ذكي للتحسين.")}
             </p>
           </Link>
-          <Link to="/security" className="glass rounded-2xl p-6 transition hover:border-primary/50">
+          <Link to="/security" className="glass rounded-xl p-6 transition hover:border-primary/50">
             <ShieldCheck className="h-5 w-5 text-primary" />
             <p className="mt-3 font-semibold">{t("Security center", "مركز الأمان")}</p>
             <p className="text-sm text-muted-foreground">

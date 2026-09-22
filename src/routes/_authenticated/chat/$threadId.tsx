@@ -151,8 +151,6 @@ function Thread({ threadId, initial }: { threadId: string; initial: LoadedThread
       });
 
       if (!finalUrl) throw new Error("No image returned");
-      updateTurn(id, { dataUrl: finalUrl, status: "done" });
-
       if (!user) return;
       const path = `${user.id}/${id}.png`;
       const { error: uploadError } = await supabase.storage
@@ -160,21 +158,29 @@ function Thread({ threadId, initial }: { threadId: string; initial: LoadedThread
         .upload(path, dataUrlToBlob(finalUrl), { contentType: "image/png", upsert: true });
       if (uploadError) throw uploadError;
 
-      updateTurn(id, { path });
-      await supabase.from("generated_images").insert({ user_id: user.id, prompt, image_path: path });
-      await supabase.from("chat_messages").insert({
+      const { error: archiveError } = await supabase.from("generated_images").insert({ user_id: user.id, prompt, image_path: path });
+      if (archiveError) {
+        await supabase.storage.from("generations").remove([path]);
+        throw archiveError;
+      }
+      const { error: messageError } = await supabase.from("chat_messages").insert({
         thread_id: threadId,
         user_id: user.id,
         role: "assistant",
         content: prompt,
         image_url: path,
       });
+      if (messageError) throw messageError;
+      updateTurn(id, { path, dataUrl: finalUrl, status: "done" });
       void supabase
         .from("chat_threads")
         .update({ updated_at: new Date().toISOString() })
         .eq("id", threadId);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const raw = error instanceof Error ? error.message : String(error);
+      const message = /safety|policy|moderation|content.?filter|refus|unsafe|blocked/i.test(raw)
+        ? t("This request conflicts with image safety rules. Adjust it and try again.", "هذا الطلب لا يتوافق مع قواعد أمان الصور. عدّله وحاول مرة أخرى.")
+        : raw;
       updateTurn(id, { status: "error", error: message });
       toast.error(message);
     }
@@ -232,7 +238,7 @@ function Thread({ threadId, initial }: { threadId: string; initial: LoadedThread
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-3xl space-y-6">
           {messages.length === 0 && imageTurns.length === 0 && (
-            <div className="glass-strong mt-10 rounded-3xl p-10 text-center">
+            <div className="glass-strong mt-10 rounded-xl p-10 text-center">
               <OperaLogoMark className="mx-auto h-20 w-20" label="Opera AI" />
               <h1 className="mt-5 font-display text-2xl font-bold">
                 {t("How can I help you today?", "كيف أقدر أساعدك اليوم؟")}
@@ -323,7 +329,7 @@ function Thread({ threadId, initial }: { threadId: string; initial: LoadedThread
       </div>
 
       <form onSubmit={submit} className="border-t border-glass-border px-4 py-4">
-        <div className="glass-strong mx-auto flex max-w-3xl items-end gap-2 rounded-2xl p-2">
+        <div className="glass-strong mx-auto flex max-w-3xl items-end gap-2 rounded-xl p-2">
           <button
             type="button"
             onClick={() => setInput((value) => (value.startsWith("/image ") ? value : `/image ${value}`))}

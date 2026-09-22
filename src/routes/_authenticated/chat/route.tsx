@@ -2,23 +2,14 @@ import { createFileRoute, Link, Outlet, useNavigate, useParams } from "@tanstack
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
-  Code2,
-  ImageIcon,
-  LayoutDashboard,
-  LogIn,
-  LogOut,
   Menu,
   MessageSquare,
   Plus,
-  ShieldCheck,
   Trash2,
   X,
 } from "lucide-react";
-import { OperaLogoMark } from "@/components/brand/OperaLogoMark";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
-import { UserAvatar } from "@/components/profile/UserAvatar";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/chat")({
@@ -44,8 +35,6 @@ function ChatLayout() {
   const [open, setOpen] = useState(false);
   const params = useParams({ strict: false }) as { threadId?: string };
 
-  const { username, displayName, avatarUrl } = useProfile();
-
   const { data: threads } = useQuery({
     queryKey: ["chat-threads", user?.id],
     enabled: !!user,
@@ -66,16 +55,8 @@ function ChatLayout() {
     if (params.threadId === id) navigate({ to: "/chat" });
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    queryClient.clear();
-    navigate({ to: "/chat" });
-  };
-
-  const name = displayName || username || "";
-
   return (
-    <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex h-screen overflow-hidden">
+    <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex h-full min-h-0 overflow-hidden">
       {open && (
         <button
           type="button"
@@ -86,65 +67,21 @@ function ChatLayout() {
       )}
 
       <aside
-        className={`glass-strong fixed inset-y-0 z-40 flex w-72 flex-col border-glass-border transition-transform md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 z-40 flex w-72 flex-col border-e border-border bg-card transition-transform md:static md:translate-x-0 ${
           lang === "ar" ? "right-0 border-s" : "left-0 border-e"
         } ${open ? "translate-x-0" : lang === "ar" ? "translate-x-full" : "-translate-x-full"} md:translate-x-0`}
       >
-        <div className="flex items-center justify-between gap-2 p-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <OperaLogoMark className="h-8 w-8" />
-            <span className="font-display text-base font-bold">
-              Opera<span className="text-primary">AI</span>
-            </span>
-          </Link>
+        <div className="flex items-center justify-between gap-2 border-b border-border p-4">
+          <span className="font-display text-sm font-bold">{t("Conversations", "المحادثات")}</span>
           <button type="button" onClick={() => setOpen(false)} className="btn-ghost !p-2 md:hidden">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Profile block */}
-        <div className="flex flex-col items-center gap-2 px-4 pb-4">
-          <UserAvatar src={avatarUrl} name={name} className="h-16 w-16 text-lg" />
-          {user ? (
-            <>
-              <Link to="/dashboard" className="max-w-full truncate text-sm font-semibold">
-                {name || t("Your account", "حسابك")}
-              </Link>
-              {username && <span dir="ltr" className="text-xs text-muted-foreground">@{username}</span>}
-              <button type="button" onClick={signOut} className="btn-ghost !py-1.5 text-xs">
-                <LogOut className="h-3.5 w-3.5" />
-                {t("Log out", "تسجيل الخروج")}
-              </button>
-            </>
-          ) : (
-            <Link to="/auth" className="btn-ghost !py-1.5 text-xs">
-              <LogIn className="h-3.5 w-3.5" />
-              {t("Log in", "تسجيل الدخول")}
-            </Link>
-          )}
-        </div>
-
-        {/* Nav buttons under the profile */}
-        <div className="space-y-1 px-3">
+        <div className="p-3">
           <Link to="/chat" onClick={() => setOpen(false)} className="btn-hero w-full justify-center !py-2.5 text-sm">
             <Plus className="h-4 w-4" />
             {t("New chat", "محادثة جديدة")}
-          </Link>
-          <Link to="/studio" className="btn-ghost w-full justify-start !py-2.5 text-xs">
-            <ImageIcon className="h-4 w-4" />
-            {t("Creative Studio", "الاستوديو الإبداعي")}
-          </Link>
-          <Link to="/code" className="btn-ghost w-full justify-start !py-2.5 text-xs">
-            <Code2 className="h-4 w-4" />
-            {t("Code", "الأكواد")}
-          </Link>
-          <Link to="/dashboard" className="btn-ghost w-full justify-start !py-2.5 text-xs">
-            <LayoutDashboard className="h-4 w-4" />
-            {t("Account", "الحساب")}
-          </Link>
-          <Link to="/security" className="btn-ghost w-full justify-start !py-2.5 text-xs">
-            <ShieldCheck className="h-4 w-4" />
-            {t("Security", "الأمان")}
           </Link>
         </div>
 
@@ -152,7 +89,7 @@ function ChatLayout() {
           {(threads ?? []).map((thread: { id: string; title: string }) => (
             <div
               key={thread.id}
-              className={`group flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition ${
+              className={`group flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition ${
                 params.threadId === thread.id
                   ? "bg-primary/12 text-primary"
                   : "text-muted-foreground hover:bg-glass-border/40"

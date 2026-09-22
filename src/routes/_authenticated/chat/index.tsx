@@ -91,7 +91,7 @@ function ChatIndex() {
         }}
         className="mt-7 w-full max-w-2xl"
       >
-        <div className="glass-strong flex items-end gap-2 rounded-2xl p-2">
+        <div className="glass-strong flex items-end gap-2 rounded-xl p-2">
           <button
             type="button"
             onClick={() => setInput((value) => (value.startsWith("/image ") ? value : `/image ${value}`))}
