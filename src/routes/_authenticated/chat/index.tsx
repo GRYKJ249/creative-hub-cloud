@@ -10,7 +10,7 @@ import { useLang } from "@/lib/i18n";
 
 export const PENDING_KEY = "opera-pending-message";
 
-export const Route = createFileRoute("/_authenticated/chat/")({
+export const Route = createFileRoute("/chat/")({
   head: () => ({
     meta: [
       { title: "New conversation — Opera AI" },

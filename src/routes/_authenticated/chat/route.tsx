@@ -21,7 +21,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { UserAvatar } from "@/components/profile/UserAvatar";
 import { useLang } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/chat")({
+export const Route = createFileRoute("/chat")({
   ssr: false,
   head: () => ({
     meta: [
