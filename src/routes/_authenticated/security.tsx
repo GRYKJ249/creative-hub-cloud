@@ -133,7 +133,7 @@ function SecurityPage() {
           </div>
         </header>
 
-        <section className="glass-strong mt-6 rounded-3xl p-6">
+        <section className="glass-strong mt-6 rounded-xl p-6">
           <div className="flex items-center gap-2">
             <KeyRound className="h-5 w-5 text-primary" />
             <h2 className="font-display font-bold">{t("Personal API keys", "مفاتيح API الشخصية")}</h2>
@@ -202,7 +202,7 @@ function SecurityPage() {
           </div>
         </section>
 
-        <section className="glass-strong mt-6 mb-10 rounded-3xl p-6">
+        <section className="glass-strong mt-6 mb-10 rounded-xl p-6">
           <div className="flex items-center gap-2">
             <Monitor className="h-5 w-5 text-primary" />
             <h2 className="font-display font-bold">{t("Recent activity", "النشاط الأخير")}</h2>
